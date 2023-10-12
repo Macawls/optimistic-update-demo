@@ -1,6 +1,6 @@
 <script setup>
 import { initialLikeState, useLikeStore } from "../stores/like/index";
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 import Footer from "../components/Footer.vue";
 import heart_full from "../assets/heart-red.png";
 import heart_empty from "../assets/heart.png";
@@ -42,39 +42,66 @@ const status = computed(() => {
   return likeStore.status ? messages.success : messages.failure;
 });
 
-const failureChance = ref(0.0);
+const timeOffset = 400;
+const timeMultiplier = 1000;
 const step = 0.2;
+
+const options = reactive({
+  failureChance: 0.0,
+  requestTime: 1000
+})
+
 
 const chanceStepOptions = Array.from({ length: 6 }, (_, index) =>
   parseFloat((step * index).toFixed(1))
 );
 
-const getFailChanceVal = () => failureChance.value;
-const onInputChange = (event) => {
-  failureChance.value = event.target.value;
-};
+const timeStepOptions = Array.from({ length: 7 }, (_, index) =>
+   Math.floor((step * index * timeMultiplier)) + timeOffset
+);
+
 </script>
 
 <template>
   <div class="flex flex-col items-center gap-5">
+    <h2 class="font-medium" style="text-transform: uppercase; color: #61afef">
+      Request
+      <span style="text-transform: none; color: #a6adba"> time 😎🚀</span>
+    </h2>
+    <input
+      type="range"
+      :min="timeStepOptions[0]"
+      :max="timeStepOptions[timeStepOptions.length - 1]"
+      class="range"
+      :value="options.requestTime"
+      :step="step * timeMultiplier"
+      @input="(event) => options.requestTime = event.target.value"
+    />
+    <div class="w-full flex justify-between text-xs px-2">
+      <span v-for="val in timeStepOptions" :key="val">{{
+        val >= 1000 ? `${val / 1000}s` : `0.${val / 100}s`
+      }}</span>
+    </div>
+    
     <h2 class="font-medium" style="text-transform: uppercase; color: #e06c75">
       Failure
       <span style="text-transform: none; color: #a6adba"> chance 😔👍</span>
     </h2>
     <input
       type="range"
-      min="0.0"
-      max="1.0"
+      :min="chanceStepOptions[0]"
+      :max="chanceStepOptions[chanceStepOptions.length - 1]"
       class="range"
-      :value="failureChance"
+      :value="options.failureChance"
       :step="step"
-      @input="onInputChange"
+      @input="(event) => options.failureChance = event.target.value"
     />
     <div class="w-full flex justify-between text-xs px-2">
       <span v-for="val in chanceStepOptions" :key="val">{{
         val * 100 + "%"
       }}</span>
     </div>
+
     <img
       :class="{ 'animate__animated animate__heartBeat': likeStore.status }"
       style="width: 150px"
@@ -83,13 +110,13 @@ const onInputChange = (event) => {
     <div class="flex flex-col gap-4 text-center">
       <div class="flex gap-4 flex-wrap justify-center items-center">
         <button
-          @click="likeStore.optimisticAction(getFailChanceVal())"
+          @click="likeStore.optimisticAction(options.failureChance, options.requestTime)"
           class="btn btn-active flex-grow"
         >
           Optimistic Action
         </button>
         <button
-          @click="likeStore.non_optimisticAction(getFailChanceVal())"
+          @click="likeStore.non_optimisticAction(options.failureChance, options.requestTime)"
           class="btn btn-active flex-grow"
         >
           Non-Optimistic Action
