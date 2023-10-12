@@ -1,20 +1,15 @@
 <script setup>
-import { useLikeStore } from '../stores/like/index'
+import { initialLikeState, useLikeStore } from "../stores/like/index";
 import { computed, ref } from "vue";
-import Footer from '../components/Footer.vue'
-import heart_full from '../assets/heart-red.png'
-import heart_empty from '../assets/heart.png'
+import Footer from "../components/Footer.vue";
+import heart_full from "../assets/heart-red.png";
+import heart_empty from "../assets/heart.png";
 
 const likeStore = useLikeStore();
-const failureChance = ref(0.0);
-const chanceStepOptions = Array.from({ length: 11 }, (_, index) =>
-  parseFloat((0.1 * index).toFixed(1))
-);
 
-const getFailChanceVal = () => failureChance.value;
-const onInputChange = (event) => {
-  failureChance.value = event.target.value;
-};
+const isInitialLikeState = computed(() => {
+  return likeStore.isSameAs(initialLikeState);
+});
 
 const messages = {
   notPerformed: {
@@ -46,12 +41,25 @@ const status = computed(() => {
 
   return likeStore.status ? messages.success : messages.failure;
 });
+
+const failureChance = ref(0.0);
+const step = 0.2;
+
+const chanceStepOptions = Array.from({ length: 6 }, (_, index) =>
+  parseFloat((step * index).toFixed(1))
+);
+
+const getFailChanceVal = () => failureChance.value;
+const onInputChange = (event) => {
+  failureChance.value = event.target.value;
+};
 </script>
 
 <template>
   <div class="flex flex-col items-center gap-5">
     <h2 class="font-medium" style="text-transform: uppercase; color: #e06c75">
-      Failure <span style="text-transform: none; color: #a6adba"> chance 😔👍</span>
+      Failure
+      <span style="text-transform: none; color: #a6adba"> chance 😔👍</span>
     </h2>
     <input
       type="range"
@@ -59,7 +67,7 @@ const status = computed(() => {
       max="1.0"
       class="range"
       :value="failureChance"
-      step="0.1"
+      :step="step"
       @input="onInputChange"
     />
     <div class="w-full flex justify-between text-xs px-2">
@@ -73,32 +81,34 @@ const status = computed(() => {
       :src="likeStore.status ? heart_full : heart_empty"
     />
     <div class="flex flex-col gap-4 text-center">
-      <div class="flex gap-4 mt-3">
+      <div class="flex gap-4 flex-wrap justify-center items-center">
         <button
           @click="likeStore.optimisticAction(getFailChanceVal())"
-          class="btn"
+          class="btn btn-active flex-grow"
         >
           Optimistic Action
         </button>
         <button
           @click="likeStore.non_optimisticAction(getFailChanceVal())"
-          class="btn"
+          class="btn btn-active flex-grow"
         >
           Non-Optimistic Action
         </button>
       </div>
       <button
-        :class="likeStore.isLoading ? 'btn-disabled' : 'btn'"
+        :class="{
+          'btn-disabled': likeStore.isLoading || isInitialLikeState ,
+        }"
         @click="likeStore.$reset()"
-        class="btn"
+        class="btn btn-active btn-ghost mt-2"
       >
-	  {{ likeStore.isLoading ? '' : 'Reset' }}
+        {{ likeStore.isLoading ? "" : "Reset" }}
         <span v-if="likeStore.isLoading" class="loading loading-spinner"></span>
       </button>
       <h2 style="text-transform: uppercase" class="font-medium">
         Status: <span :style="{ color: status.color }">{{ status.msg }}</span>
       </h2>
     </div>
-	<Footer/>
+    <Footer />
   </div>
 </template>
