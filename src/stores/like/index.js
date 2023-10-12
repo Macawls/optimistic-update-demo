@@ -20,9 +20,6 @@ export const useLikeStore = defineStore("like", {
       // Simulate async call
       await new Promise((resolve) => setTimeout(resolve, this.loadingTime));
 
-      console.log(compare)
-      console.log(chance)
-
       this.status = chance <= compare;
       this.isLoading = false;
     },
