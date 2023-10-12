@@ -13,6 +13,10 @@ export const useLikeStore = defineStore("like", {
       if (this.isLoading) {
         return;
       }
+
+      if (!this.isSameAs(initialLikeState)){
+        this.$reset()
+      }
       
       this.hasInitiatedRequest = true;
       this.isLoading = true;
