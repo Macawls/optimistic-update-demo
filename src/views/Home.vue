@@ -2,6 +2,8 @@
 import { useLikeStore } from '../stores/like/index'
 import { computed, ref } from "vue";
 import Footer from '../components/Footer.vue'
+import heart_full from '../assets/heart-red.png'
+import heart_empty from '../assets/heart.png'
 
 const likeStore = useLikeStore();
 const failureChance = ref(0.0);
@@ -68,7 +70,7 @@ const status = computed(() => {
     <img
       :class="{ 'animate__animated animate__heartBeat': likeStore.status }"
       style="width: 150px"
-      :src="likeStore.status ? '/icons/heart-red.png' : '/icons/heart.png'"
+      :src="likeStore.status ? heart_full : heart_empty"
     />
     <div class="flex flex-col gap-4 text-center">
       <div class="flex gap-4 mt-3">
