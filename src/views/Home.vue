@@ -2,6 +2,7 @@
 import { initialLikeState, useLikeStore } from "../stores/like/index";
 import { computed, reactive, ref } from "vue";
 import Footer from "../components/Footer.vue";
+import Definition from "../components/Definition.vue";
 import heart_full from "../assets/heart-red.png";
 import heart_empty from "../assets/heart.png";
 
@@ -63,7 +64,11 @@ const timeStepOptions = Array.from({ length: 7 }, (_, index) =>
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-5">
+  <div class="flex flex-col justify-center items-center gap-5 lg:gap-40">
+  <Definition/>
+  <Footer/>
+  </div>
+  <div class="flex flex-col items-center gap-5 w-96">
     <h2 class="font-medium" style="text-transform: uppercase; color: #61afef">
       Request
       <span style="text-transform: none; color: #a6adba"> time 😎🚀</span>
@@ -136,6 +141,5 @@ const timeStepOptions = Array.from({ length: 7 }, (_, index) =>
         Status: <span :style="{ color: status.color }">{{ status.msg }}</span>
       </h2>
     </div>
-    <Footer />
   </div>
 </template>
